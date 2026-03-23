@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.diabetefood.app",
+    "sha256_cert_fingerprints": ["C9:5B:98:81:BE:F3:F5:19:91:78:8E:72:F7:B4:68:67:B1:70:00:B2:38:5F:8D:F6:24:FC:41:C9:AB:44:C8:CE"]
+  }
+}]
