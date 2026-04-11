@@ -30,7 +30,8 @@ jobs:
           mkdir -p app/src/main/res/{values,mipmap-xxxhdpi,mipmap-xxhdpi,mipmap-xhdpi,mipmap-hdpi,mipmap-mdpi,xml}
           curl -sL -o icon.png "https://diabetefood-alt.github.io/app/icon-512.png"
           for d in xxxhdpi xxhdpi xhdpi hdpi mdpi; do cp icon.png app/src/main/res/mipmap-$d/ic_launcher.png; done
-          keytool -genkeypair -alias pwa -keyalg RSA -keysize 2048 -validity 10000 -keystore pwa.keystore -storepass diabetefood2024 -keypass diabetefood2024 -dname "CN=DiabeteFood,OU=Dev,O=DiabeteFood,L=Paris,ST=IDF,C=FR"
+          echo "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" | base64 -d > pwa.keystore
+          keytool -list -v -keystore pwa.keystore -storepass diabetefood2024 -alias pwa 2>&1 | grep SHA1
           cat > settings.gradle << 'SEOF'
           rootProject.name = 'DiabeteFoodTWA'
           include ':app'
@@ -172,6 +173,14 @@ jobs:
       - name: Generate Gradle wrapper
         run: gradle wrapper --gradle-version 8.5
 
+      - name: Export upload certificate
+        run: |
+          keytool -exportcert -alias pwa -keystore pwa.keystore -storepass diabetefood2024 -rfc -file upload_cert.pem
+          echo "=== Upload Certificate SHA1 ==="
+          keytool -list -v -keystore pwa.keystore -storepass diabetefood2024 -alias pwa 2>&1 | grep SHA1
+          echo "=== PEM Certificate ==="
+          cat upload_cert.pem
+
       - name: Build AAB
         run: ./gradlew bundleRelease --no-daemon --stacktrace
 
@@ -185,3 +194,9 @@ jobs:
           name: diabetefood-aab
           path: app/build/outputs/**/*.aab
           if-no-files-found: warn
+
+      - name: Upload certificate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: upload-certificate
+          path: upload_cert.pem
