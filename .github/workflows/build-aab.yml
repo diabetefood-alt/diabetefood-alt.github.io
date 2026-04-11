@@ -1,0 +1,187 @@
+name: Build TWA AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Create TWA Android project
+        run: |
+          set -e
+          mkdir -p app/src/main/res/{values,mipmap-xxxhdpi,mipmap-xxhdpi,mipmap-xhdpi,mipmap-hdpi,mipmap-mdpi,xml}
+          curl -sL -o icon.png "https://diabetefood-alt.github.io/app/icon-512.png"
+          for d in xxxhdpi xxhdpi xhdpi hdpi mdpi; do cp icon.png app/src/main/res/mipmap-$d/ic_launcher.png; done
+          keytool -genkeypair -alias pwa -keyalg RSA -keysize 2048 -validity 10000 -keystore pwa.keystore -storepass diabetefood2024 -keypass diabetefood2024 -dname "CN=DiabeteFood,OU=Dev,O=DiabeteFood,L=Paris,ST=IDF,C=FR"
+          cat > settings.gradle << 'SEOF'
+          rootProject.name = 'DiabeteFoodTWA'
+          include ':app'
+          SEOF
+          cat > build.gradle << 'BEOF'
+          buildscript {
+            repositories { google(); mavenCentral() }
+            dependencies { classpath 'com.android.tools.build:gradle:8.2.0' }
+          }
+          allprojects { repositories { google(); mavenCentral() } }
+          BEOF
+          cat > gradle.properties << 'GEOF'
+          android.useAndroidX=true
+          org.gradle.jvmargs=-Xmx2048m
+          GEOF
+          cat > app/build.gradle << 'AEOF'
+          apply plugin: 'com.android.application'
+          android {
+            namespace 'com.diabetefood.scanner'
+            compileSdk 34
+            defaultConfig {
+              applicationId "com.diabetefood.scanner"
+              minSdk 19
+              targetSdk 34
+              versionCode 2
+              versionName "1.1.0"
+            }
+            signingConfigs {
+              release {
+                storeFile file('../pwa.keystore')
+                storePassword 'diabetefood2024'
+                keyAlias 'pwa'
+                keyPassword 'diabetefood2024'
+              }
+            }
+            buildTypes {
+              release {
+                minifyEnabled true
+                signingConfig signingConfigs.release
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+              }
+            }
+            compileOptions {
+              sourceCompatibility JavaVersion.VERSION_1_8
+              targetCompatibility JavaVersion.VERSION_1_8
+            }
+          }
+          dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+            implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+          }
+          AEOF
+          cat > app/src/main/res/values/strings.xml << 'XEOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+            <string name="appName">DiabeteFood Scanner</string>
+            <string name="hostName">diabetefood-alt.github.io</string>
+            <string name="launchUrl">/app/</string>
+            <string name="providerAuthority">com.diabetefood.scanner.fileprovider</string>
+            <string name="assetStatements">[{\"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": {\"namespace\": \"web\", \"site\": \"https://diabetefood-alt.github.io\"}}]</string>
+          </resources>
+          XEOF
+          cat > app/src/main/res/values/colors.xml << 'XEOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+            <color name="colorPrimary">#ff6b00</color>
+            <color name="navigationColor">#ff6b00</color>
+            <color name="backgroundColor">#fff8f2</color>
+          </resources>
+          XEOF
+          cat > app/src/main/res/values/styles.xml << 'XEOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+            <style name="Theme.LauncherActivity" parent="Theme.AppCompat.Light.NoActionBar">
+              <item name="android:windowBackground">@color/backgroundColor</item>
+            </style>
+          </resources>
+          XEOF
+          cat > app/src/main/res/values/bools.xml << 'XEOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources><bool name="enableNotification">false</bool></resources>
+          XEOF
+          cat > app/src/main/res/values/integers.xml << 'XEOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources><integer name="splashScreenFadeOutDuration">300</integer></resources>
+          XEOF
+          cat > app/src/main/res/xml/filepaths.xml << 'XEOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <paths><files-path name="twa_image" path="/"/></paths>
+          XEOF
+          cat > app/src/main/AndroidManifest.xml << 'MEOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <uses-permission android:name="com.android.vending.BILLING" />
+            <application android:allowBackup="true" android:icon="@mipmap/ic_launcher"
+              android:label="@string/appName" android:supportsRtl="true"
+              android:theme="@style/Theme.LauncherActivity">
+              <meta-data android:name="asset_statements" android:resource="@string/assetStatements"/>
+              <activity android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+                android:label="@string/appName" android:exported="true">
+                <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL" android:value="@string/launchUrl"/>
+                <meta-data android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR" android:resource="@color/colorPrimary"/>
+                <meta-data android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR" android:resource="@color/navigationColor"/>
+                <meta-data android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR" android:resource="@color/backgroundColor"/>
+                <meta-data android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION" android:value="@integer/splashScreenFadeOutDuration"/>
+                <meta-data android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY" android:value="@string/providerAuthority"/>
+                <intent-filter>
+                  <action android:name="android.intent.action.MAIN"/>
+                  <category android:name="android.intent.category.LAUNCHER"/>
+                </intent-filter>
+                <intent-filter android:autoVerify="true">
+                  <action android:name="android.intent.action.VIEW"/>
+                  <category android:name="android.intent.category.DEFAULT"/>
+                  <category android:name="android.intent.category.BROWSABLE"/>
+                  <data android:scheme="https" android:host="@string/hostName"/>
+                </intent-filter>
+              </activity>
+              <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity"/>
+              <provider android:name="androidx.core.content.FileProvider"
+                android:authorities="@string/providerAuthority" android:grantUriPermissions="true" android:exported="false">
+                <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/filepaths"/>
+              </provider>
+              <service android:name="com.google.androidbrowserhelper.trusted.DelegationService"
+                android:enabled="@bool/enableNotification" android:exported="@bool/enableNotification">
+                <intent-filter>
+                  <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE"/>
+                  <category android:name="android.intent.category.DEFAULT"/>
+                </intent-filter>
+              </service>
+            </application>
+          </manifest>
+          MEOF
+          echo "=== TWA project created ==="
+          find . -type f | sort | head -30
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate Gradle wrapper
+        run: gradle wrapper --gradle-version 8.5
+
+      - name: Build AAB
+        run: ./gradlew bundleRelease --no-daemon --stacktrace
+
+      - name: List AAB files
+        if: always()
+        run: find . -name "*.aab" -type f 2>/dev/null || echo "No AAB found"
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: diabetefood-aab
+          path: app/build/outputs/**/*.aab
+          if-no-files-found: warn
