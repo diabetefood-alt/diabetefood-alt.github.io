@@ -1,12 +1,1 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.diabetefood.scanner",
-      "sha256_cert_fingerprints": [
-        "7F:C7:E2:FA:0B:AF:8C:60:CD:53:75:65:D0:9F:46:F0:C4:DC:A6:8D:5C:DB:26:A0:54:96:23:05:1E:3E:35:A1"
-      ]
-    }
-  }
-]
+[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"com.diabetefood.scanner","sha256_cert_fingerprints":["F7:87:B7:B6:2E:C6:AD:94:EB:B8:90:51:52:35:02:14:16:C2:27:C5:2B:74:49:CB:85:5B:5E:5E:46:D8:8C:89","7F:C7:E2:FA:0B:AF:8C:60:CD:53:75:65:D0:9F:46:F0:C4:DC:A6:8D:5C:DB:26:A0:54:96:23:05:1E:3E:35:A1"]}}]
