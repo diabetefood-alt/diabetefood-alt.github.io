@@ -1,4 +1,4 @@
-hname: Build TWA AAB
+name: Build TWA AAB
 
 on:
   workflow_dispatch:
