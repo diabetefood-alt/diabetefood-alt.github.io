@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiabeteFood Premium</title>
+<style>
+  :root {
+    --primary: #ff6b00;
+    --primary-dark: #e55d00;
+    --bg: #fff8f2;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --success: #10b981;
+    --border: #f3e8de;
+    --shadow: 0 4px 24px rgba(255, 107, 0, 0.10);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px;
+  }
+  .premium-page { max-width: 480px; margin: 0 auto; }
+  .premium-header { text-align: center; padding: 32px 16px 24px; }
+  .premium-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--primary), #ff9a44);
+    border-radius: 20px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; font-size: 36px;
+  }
+  .premium-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .premium-header p { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+  .features { padding: 0 8px; margin-bottom: 24px; }
+  .feature { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+  .feature-icon {
+    width: 40px; height: 40px; background: var(--bg); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  .feature-text h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .feature-text p { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+  .plans { display: flex; flex-direction: column; gap: 12px; padding: 0 8px; margin-bottom: 24px; }
+  .plan-card {
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: 16px;
+    padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .plan-card:hover { border-color: var(--primary); }
+  .plan-card.selected { border-color: var(--primary); box-shadow: var(--shadow); }
+  .plan-card.recommended::before {
+    content: 'Meilleure offre'; position: absolute; top: 0; right: 0;
+    background: var(--primary); color: white; font-size: 11px; font-weight: 600;
+    padding: 4px 12px; border-bottom-left-radius: 10px;
+  }
+  .plan-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .plan-name { font-size: 16px; font-weight: 600; }
+  .plan-radio {
+    width: 22px; height: 22px; border: 2px solid #d1d5db; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .plan-card.selected .plan-radio { border-color: var(--primary); }
+  .plan-card.selected .plan-radio::after {
+    content: ''; width: 12px; height: 12px; background: var(--primary); border-radius: 50%;
+  }
+  .plan-price { font-size: 28px; font-weight: 700; color: var(--primary); }
+  .plan-price span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+  .plan-savings { font-size: 13px; color: var(--success); font-weight: 600; margin-top: 4px; }
+  .subscribe-btn {
+    display: block; width: calc(100% - 16px); margin: 0 8px 16px; padding: 16px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: 600;
+    cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+  }
+  .subscribe-btn:active { transform: scale(0.98); }
+  .subscribe-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .subscribe-note { text-align: center; font-size: 12px; color: var(--text-muted); padding: 0 24px; line-height: 1.5; }
+  .premium-active { text-align: center; padding: 40px 20px; }
+  .premium-active .check {
+    width: 64px; height: 64px; background: var(--success); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+    font-size: 32px; color: white;
+  }
+  .premium-active h2 { font-size: 22px; margin-bottom: 8px; }
+  .premium-active p { color: var(--text-muted); font-size: 15px; }
+  .loading { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .not-available { text-align: center; padding: 40px 20px; }
+  .not-available p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="premium-page">
+  <div id="loading" class="loading"><div class="spinner"></div><p>Chargement...</p></div>
+  <div id="content" class="hidden">
+    <div class="premium-header">
+      <div class="premium-icon">&#9733;</div>
+      <h1>DiabeteFood Premium</h1>
+      <p>Scannez sans limite, acc\u00e9dez aux analyses d\u00e9taill\u00e9es et au suivi personnalis\u00e9 de votre glyc\u00e9mie.</p>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">&#128247;</div>
+        <div class="feature-text"><h3>Scans illimit\u00e9s</h3><p>Scannez tous les produits alimentaires sans restriction quotidienne.</p></div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128200;</div>
+        <div class="feature-text"><h3>Analyse glyc\u00e9mique avanc\u00e9e</h3><p>Index glyc\u00e9mique d\u00e9taill\u00e9, charge glyc\u00e9mique et impact sur votre glyc\u00e9mie.</p></div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128203;</div>
+        <div class="feature-text"><h3>Historique et suivi</h3><p>Gardez un historique complet de vos scans et suivez vos progr\u00e8s.</p></div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#127860;</div>
+        <div class="feature-text"><h3>Repas personnalis\u00e9s</h3><p>Suggestions de repas adapt\u00e9s \u00e0 votre profil diab\u00e9tique.</p></div>
+      </div>
+    </div>
+    <div class="plans">
+      <div class="plan-card" id="plan-monthly" onclick="selectPlan('monthly')">
+        <div class="plan-top"><span class="plan-name">Mensuel</span><div class="plan-radio"></div></div>
+        <div class="plan-price" id="price-monthly">2,99 &euro;<span> /mois</span></div>
+      </div>
+      <div class="plan-card recommended selected" id="plan-yearly" onclick="selectPlan('yearly')">
+        <div class="plan-top"><span class="plan-name">Annuel</span><div class="plan-radio"></div></div>
+        <div class="plan-price" id="price-yearly">19,99 &euro;<span> /an</span></div>
+        <div class="plan-savings">\u00c9conomisez 44% par rapport au mensuel</div>
+      </div>
+    </div>
+    <button class="subscribe-btn" id="subscribe-btn" onclick="handleSubscribe()">S'abonner maintenant</button>
+    <p class="subscribe-note">Annulable \u00e0 tout moment depuis le Google Play Store.<br>Le renouvellement est automatique sauf annulation 24h avant la fin de la p\u00e9riode.</p>
+  </div>
+  <div id="premium-active" class="premium-active hidden">
+    <div class="check">&#10003;</div>
+    <h2>Vous \u00eates Premium !</h2>
+    <p id="premium-plan-info">Votre abonnement est actif.</p>
+  </div>
+  <div id="not-available" class="not-available hidden">
+    <div class="premium-header"><div class="premium-icon">&#9733;</div><h1>DiabeteFood Premium</h1></div>
+    <p>Les abonnements sont disponibles uniquement via l'application Android sur le Google Play Store.</p>
+  </div>
+</div>
+<script src="billing.js"></script>
+<script>
+  let selectedPlan = 'yearly';
+  function selectPlan(plan) {
+    selectedPlan = plan;
+    document.getElementById('plan-monthly').classList.toggle('selected', plan === 'monthly');
+    document.getElementById('plan-yearly').classList.toggle('selected', plan === 'yearly');
+  }
+  async function handleSubscribe() {
+    const btn = document.getElementById('subscribe-btn');
+    btn.disabled = true; btn.textContent = 'Traitement en cours...';
+    const productId = selectedPlan === 'monthly' ? Billing.MONTHLY_ID : Billing.YEARLY_ID;
+    const result = await Billing.subscribe(productId);
+    if (result.success) { showPremiumActive(); }
+    else if (result.error === 'cancelled') { btn.disabled = false; btn.textContent = "S'abonner maintenant"; }
+    else { btn.disabled = false; btn.textContent = "S'abonner maintenant"; alert('Erreur: ' + result.error); }
+  }
+  function showPremiumActive() {
+    document.getElementById('content').classList.add('hidden');
+    document.getElementById('premium-active').classList.remove('hidden');
+    const sub = Billing.getActiveSubscription();
+    const info = document.getElementById('premium-plan-info');
+    if (sub === Billing.MONTHLY_ID) info.textContent = 'Abonnement mensuel actif.';
+    else if (sub === Billing.YEARLY_ID) info.textContent = 'Abonnement annuel actif.';
+  }
+  async function initPage() {
+    const loading = document.getElementById('loading');
+    if (!Billing.isAvailable()) { loading.classList.add('hidden'); document.getElementById('not-available').classList.remove('hidden'); return; }
+    const ok = await Billing.init((isPremium) => { if (isPremium) showPremiumActive(); });
+    loading.classList.add('hidden');
+    if (!ok) { document.getElementById('not-available').classList.remove('hidden'); return; }
+    const monthly = Billing.getMonthly();
+    const yearly = Billing.getYearly();
+    if (monthly) document.getElementById('price-monthly').innerHTML = monthly.formattedPrice + '<span> /mois</span>';
+    if (yearly) document.getElementById('price-yearly').innerHTML = yearly.formattedPrice + '<span> /an</span>';
+    if (Billing.isPremium()) showPremiumActive();
+    else document.getElementById('content').classList.remove('hidden');
+  }
+  initPage();
+</script>
+</body>
+  </html>
