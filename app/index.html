@@ -2234,5 +2234,45 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 </script>
+
+<script>
+/* BillingFix v1 — restaure activatePremium apres scripts externes */
+window.addEventListener('load', function() {
+  var PIDS = {monthly:'diabetefood_premium_monthly', yearly:'diabetefood_premium_yearly'};
+  window.activatePremium = async function() {
+    var plan = window.selectedPlan || 'yearly';
+    var pid = PIDS[plan];
+    if (!window.digitalGoodsService) {
+      if ('getDigitalGoodsService' in window) {
+        try { window.digitalGoodsService = await window.getDigitalGoodsService('https://play.google.com/billing'); }
+        catch(e) { console.error('[BillingFix] init err', e); }
+      }
+    }
+    if (window.digitalGoodsService) {
+      try {
+        var d = await window.digitalGoodsService.getDetails([pid]);
+        if (!d || !d.length) { if(typeof showError==='function') showError('Produit non trouve'); return; }
+        var it = d[0];
+        var rq = new PaymentRequest(
+          [{supportedMethods:'https://play.google.com/billing', data:{sku:it.itemId}}],
+          {total:{label:it.title||'DiabeteFood Premium', amount:{currency:it.price.currency, value:it.price.value}}}
+        );
+        var rp = await rq.show();
+        await window.digitalGoodsService.acknowledge(rp.details.purchaseToken, 'repeating');
+        await rp.complete('success');
+        localStorage.setItem('diabetefood_premium','true');
+        if(typeof closePremiumPopup==='function') closePremiumPopup();
+        if(typeof renderScanCounter==='function') renderScanCounter();
+        if(typeof showError==='function') showError('Premium active !');
+      } catch(e) {
+        if(e.name!=='AbortError') { console.error('[BillingFix] pay err',e); if(typeof showError==='function') showError('Erreur paiement'); }
+      }
+    } else {
+      if(typeof showError==='function') showError('Telechargez l appli depuis le Play Store');
+    }
+  };
+  console.log('[BillingFix] activatePremium restaure v1');
+});
+</script>
 </body>
 </html>
