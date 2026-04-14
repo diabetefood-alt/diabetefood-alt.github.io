@@ -1745,7 +1745,9 @@ function generatePDF() {
   <table><thead><tr><th>Produit</th><th>Score</th><th>Glucides</th><th>Sucres</th><th>Heure</th></tr></thead>
   <tbody>${rows}</tbody></table>
   <div class="disclaimer">⚕️ Ce rapport est généré par l'application DiabeteFood à titre informatif uniquement. Il ne remplace pas l'avis de votre médecin ou diabétologue. Veuillez consulter votre équipe médicale pour toute décision thérapeutique.</div>
-  </body></html>`;
+  <script src="billing.js"></script>
+<script src="premium-gate.js"></script>
+</body></html>`;
   const blob = new Blob([html], {type:'text/html'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
