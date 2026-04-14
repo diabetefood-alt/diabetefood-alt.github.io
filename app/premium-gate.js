@@ -1,3 +1,4 @@
+// v4 — last update: 2026-04-14T15:22:36.737Z
 /**
  * DiabeteFood Premium Gate — Sécurisation de l'accès Premium
  *
