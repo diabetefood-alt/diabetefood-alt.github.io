@@ -1,7 +1,7 @@
 importScripts('https://www.gstatic.com/firebasejs/12.3.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging-compat.js');
 
-const CACHE_NAME = 'diabetefood-v83';
+const CACHE_NAME = 'diabetefood-v84';
 const ASSETS = [
   '/app/',
   '/app/index.html',
@@ -9,13 +9,13 @@ const ASSETS = [
   '/app/icon-192.png',
   '/app/icon-512.png',
   '/app/billing.js',
-  '/app/premium-gate.js',
+  '/app/premium-gate.js?v=4',
   '/app/premium.html',
   'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js'
 ];
 
 // Scripts premium à injecter dans le HTML
-const INJECT_SCRIPTS = '<script src="billing.js"><\/script><script src="premium-gate.js"><\/script>';
+const INJECT_SCRIPTS = '<script src="billing.js"><\/script><script src="premium-gate.js?v=4"><\/script>';
 
 firebase.initializeApp({
   apiKey: "AIzaSyB3KmZ_XCrMn58gX9yjEjxVyr5LROK2Is4",
