@@ -123,7 +123,7 @@
         scanCounter.classList.remove('premium-mode');
         updateScanCounterDisplay();
       }
-      if (overlay) overlay.classList.remove('hidden');
+      // FIX: ne pas forcer overlay visible — laisser showScanLimitReached() le montrer
     }
   }
 
